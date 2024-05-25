@@ -13,7 +13,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.compose.rememberNavController
 import com.example.natifetestapp.remote.services.gifs.repository.SearchRepository
+import com.example.natifetestapp.ui.navigation.AppNavGraph
 import com.example.natifetestapp.ui.theme.NatifeTestAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -29,40 +31,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             NatifeTestAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
-
-            LaunchedEffect(Unit) {
-                lifecycleScope.launch {
-                    searchRepository.getGifs(query = "rest", limit = 23)
-                        .onSuccess { gifs ->
-                            println(gifs)
-                        }.onFailure { exception ->
-                            println(exception)
-                        }
-                }
+                val navController = rememberNavController()
+                AppNavGraph(navHostController = navController)
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    NatifeTestAppTheme {
-        Greeting("Android")
     }
 }

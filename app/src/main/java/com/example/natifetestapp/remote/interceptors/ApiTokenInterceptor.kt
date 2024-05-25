@@ -14,7 +14,7 @@ class ApiTokenInterceptor(
     }
 
     private fun Request.addApiKey(): Request {
-        val newUrl = url()
+        val newUrl = url
             .newBuilder()
             .addQueryParameter("api_key", apiKey)
             .build()
