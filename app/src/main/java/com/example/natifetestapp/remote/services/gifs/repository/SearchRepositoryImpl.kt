@@ -1,7 +1,13 @@
 package com.example.natifetestapp.remote.services.gifs.repository
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import com.example.natifetestapp.remote.services.gifs.api.SearchApi
+import com.example.natifetestapp.remote.services.gifs.paging.GifsPagingSource
+import com.example.natifetestapp.remote.services.gifs.responses.GifResponse
 import com.example.natifetestapp.remote.services.gifs.responses.GifsResponse
+import kotlinx.coroutines.flow.Flow
 
 class SearchRepositoryImpl(
     private val searchApi: SearchApi
@@ -25,5 +31,17 @@ class SearchRepositoryImpl(
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    override fun getGifsPaginated(
+        initialValues: GifsResponse,
+        query: String
+    ): Flow<PagingData<GifResponse>> {
+        return Pager(
+            config = PagingConfig(GifsPagingSource.STEP),
+            pagingSourceFactory = {
+                GifsPagingSource(initialValues = initialValues, query = query, searchApi = searchApi)
+            }
+        ).flow
     }
 }
