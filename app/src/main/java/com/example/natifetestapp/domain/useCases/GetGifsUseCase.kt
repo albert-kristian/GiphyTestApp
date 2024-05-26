@@ -1,6 +1,6 @@
 package com.example.natifetestapp.domain.useCases
 
-import com.example.natifetestapp.data.repository.SearchRepository
+import com.example.natifetestapp.data.repository.GifsRepository
 import com.example.natifetestapp.domain.models.GifDomain
 
 interface GetGifsUseCase {
@@ -8,7 +8,7 @@ interface GetGifsUseCase {
     suspend fun execute(query: String): Result<List<GifDomain>>
 }
 
-class GetGifsUseCaseImpl(private val repository: SearchRepository): GetGifsUseCase {
+class GetGifsUseCaseImpl(private val repository: GifsRepository): GetGifsUseCase {
 
     override suspend fun execute(query: String): Result<List<GifDomain>> {
         return try {

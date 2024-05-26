@@ -12,9 +12,10 @@ fun GifEntity.toDomain(): GifDomain = GifDomain(
     originalGifUrl = originalUrl
 )
 
-fun GifDomain.toEntity(): GifEntity = GifEntity(
+fun GifDomain.toEntity(isDeleted: Boolean = false): GifEntity = GifEntity(
     id = id,
     title = title,
+    isDeleted = isDeleted,
     thumbnailHeight = thumbnailHeight,
     thumbnailWidth = thumbnailWidth,
     thumbnailUrl = thumbnailGifUrl,

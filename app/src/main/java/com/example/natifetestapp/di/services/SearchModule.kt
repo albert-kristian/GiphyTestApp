@@ -2,8 +2,8 @@ package com.example.natifetestapp.di.services
 
 import com.example.natifetestapp.data.local.daos.GifDao
 import com.example.natifetestapp.data.remote.services.gifs.api.SearchApi
-import com.example.natifetestapp.data.repository.SearchRepository
-import com.example.natifetestapp.data.repository.SearchRepositoryImpl
+import com.example.natifetestapp.data.repository.GifsRepository
+import com.example.natifetestapp.data.repository.GifsRepositoryImpl
 import com.example.natifetestapp.di.IoDispatcher
 import com.example.natifetestapp.utils.NetworkConnectionHelper
 import dagger.Module
@@ -31,8 +31,8 @@ object SearchModule {
         connectionHelper: NetworkConnectionHelper,
         searchApi: SearchApi,
         gifDao: GifDao
-    ): SearchRepository {
-        return SearchRepositoryImpl(
+    ): GifsRepository {
+        return GifsRepositoryImpl(
             dispatcher = dispatcher,
             connectionHelper = connectionHelper,
             searchApi = searchApi,

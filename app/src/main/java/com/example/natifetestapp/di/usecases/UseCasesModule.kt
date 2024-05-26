@@ -1,10 +1,12 @@
 package com.example.natifetestapp.di.usecases
 
-import com.example.natifetestapp.data.repository.SearchRepository
+import com.example.natifetestapp.data.repository.GifsRepository
 import com.example.natifetestapp.domain.useCases.GetGifsPagingFlowUseCase
 import com.example.natifetestapp.domain.useCases.GetGifsPagingFlowUseCaseImpl
 import com.example.natifetestapp.domain.useCases.GetGifsUseCase
 import com.example.natifetestapp.domain.useCases.GetGifsUseCaseImpl
+import com.example.natifetestapp.domain.useCases.SetGifDeletedUseCase
+import com.example.natifetestapp.domain.useCases.SetGifDeletedUseCaseImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,7 +20,7 @@ object UseCasesModule {
     @Provides
     @ViewModelScoped
     fun provideGetGifsUseCase(
-        repository: SearchRepository
+        repository: GifsRepository
     ): GetGifsUseCase {
         return GetGifsUseCaseImpl(repository)
     }
@@ -26,8 +28,16 @@ object UseCasesModule {
     @Provides
     @ViewModelScoped
     fun provideGetGifsPagingFlowUseCase(
-        repository: SearchRepository
+        repository: GifsRepository
     ): GetGifsPagingFlowUseCase {
         return GetGifsPagingFlowUseCaseImpl(repository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideSetGifDeletedUseCase(
+        repository: GifsRepository
+    ): SetGifDeletedUseCase {
+        return SetGifDeletedUseCaseImpl(repository)
     }
 }

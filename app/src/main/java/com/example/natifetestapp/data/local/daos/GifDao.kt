@@ -15,6 +15,9 @@ interface GifDao {
     @Query("SELECT * FROM gifentity WHERE id == :id")
     fun getGifById(id: String): GifEntity
 
+    @Query("SELECT * FROM gifentity WHERE id == :id")
+    fun getOptionalGifById(id: String): GifEntity?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(gif: GifEntity)
 

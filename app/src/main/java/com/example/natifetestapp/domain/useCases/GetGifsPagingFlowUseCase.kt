@@ -1,7 +1,7 @@
 package com.example.natifetestapp.domain.useCases
 
 import androidx.paging.PagingData
-import com.example.natifetestapp.data.repository.SearchRepository
+import com.example.natifetestapp.data.repository.GifsRepository
 import com.example.natifetestapp.domain.models.GifDomain
 import kotlinx.coroutines.flow.Flow
 
@@ -14,7 +14,7 @@ interface GetGifsPagingFlowUseCase {
 }
 
 class GetGifsPagingFlowUseCaseImpl(
-    private val repository: SearchRepository
+    private val repository: GifsRepository
 ): GetGifsPagingFlowUseCase {
 
     override suspend fun execute(

@@ -1,22 +1,36 @@
 package com.example.natifetestapp.presentation.ui.screens.mainGifs
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -41,6 +55,7 @@ fun MainGifsScreen() {
     MainGifsContent(
         searchQuery = viewModel.searchQuery.value,
         onSearchQueryChange = viewModel::onSearchQueryChange,
+        onDeleteGifClicked = viewModel::onDeleteGif,
         uiState = viewModel.uiState.value
     )
 }
@@ -49,6 +64,7 @@ fun MainGifsScreen() {
 private fun MainGifsContent(
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
+    onDeleteGifClicked: (id: String) -> Unit,
     uiState: MainGifsViewModel.UiState
 ) {
     Scaffold(
@@ -68,57 +84,32 @@ private fun MainGifsContent(
                 is Loading -> MainGifsLoadingView()
                 is NoResults -> MainGifsNoResultsView()
                 is Success -> MainGifsSuccessView(
-                    gifs = uiState.gifs.collectAsLazyPagingItems()
+                    gifs = uiState.gifs.collectAsLazyPagingItems(),
+                    onDeleteGifClicked = onDeleteGifClicked
                 )
             }
         }
     }
 }
 
+// region Views
+
 @Composable
 private fun MainGifsSuccessView(
-    gifs: LazyPagingItems<GifUIModel>
+    gifs: LazyPagingItems<GifUIModel>,
+    onDeleteGifClicked: (id: String) -> Unit
 ) {
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Adaptive(200.dp)
     ) {
         items(gifs.itemCount) { gifIndex ->
             gifs[gifIndex]?.let { gif ->
-                SubcomposeAsyncImage(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(gif.thumbnailAspectRatio),
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .diskCachePolicy(policy = CachePolicy.ENABLED)
-                        .diskCacheKey(gif.id)
-                        .data(gif.thumbnailGifUrl)
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = gif.title,
-                    contentScale = ContentScale.FillWidth,
-                    loading = {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .aspectRatio(gif.thumbnailAspectRatio),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(24.dp),
-                                strokeWidth = 3.dp
-                            )
-                        }
-                    },
-                    error = {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(150.dp),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Text(text = "Failed to load Gif")
-                        }
-                    }
+                GifImage(
+                    id = gif.id,
+                    gifTitle = gif.title,
+                    thumbnailUrl = gif.thumbnailGifUrl,
+                    aspectRation = gif.thumbnailAspectRatio,
+                    onDeleteGifClicked = onDeleteGifClicked
                 )
             }
         }
@@ -180,3 +171,88 @@ private fun MainGifsNoResultsView() {
     }
 }
 
+// endregion Views
+
+// region Components
+
+@Composable
+fun GifImage(
+    id: String,
+    gifTitle: String,
+    thumbnailUrl: String,
+    aspectRation: Float,
+    onDeleteGifClicked: (id: String) -> Unit
+) {
+    var showDeleteButton by remember { mutableStateOf(false) }
+    var wasDeleted by rememberSaveable { mutableStateOf(false) }
+
+    AnimatedVisibility(
+        visible = !wasDeleted,
+        enter = fadeIn(),
+        exit = fadeOut()
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(aspectRation)
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onLongPress = {
+                            showDeleteButton = !showDeleteButton
+                        }
+                    )
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            SubcomposeAsyncImage(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(aspectRation),
+                model = ImageRequest.Builder(LocalContext.current)
+                    .diskCachePolicy(policy = CachePolicy.ENABLED)
+                    .diskCacheKey(id)
+                    .data(thumbnailUrl)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = gifTitle,
+                contentScale = ContentScale.FillWidth,
+                loading = {
+                    Surface(
+                        modifier = Modifier
+                            .size(24.dp)
+                            .padding(80.dp)
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            strokeWidth = 3.dp
+                        )
+                    }
+                },
+                error = {
+                    Text(text = "Failed to load Gif")
+                }
+            )
+            if (showDeleteButton) {
+                IconButton(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .fillMaxWidth(.3f)
+                        .aspectRatio(1f)
+                        .padding(8.dp),
+                    onClick = {
+                        onDeleteGifClicked(id)
+                        wasDeleted = true
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Delete,
+                        contentDescription = "Delete",
+                        tint = Color.Red
+                    )
+                }
+            }
+        }
+    }
+}
+
+// endregion Components

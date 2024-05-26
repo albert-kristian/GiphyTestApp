@@ -4,7 +4,7 @@ import androidx.paging.PagingData
 import com.example.natifetestapp.domain.models.GifDomain
 import kotlinx.coroutines.flow.Flow
 
-interface SearchRepository {
+interface GifsRepository {
 
     companion object {
         const val LIMIT = 25
@@ -22,4 +22,6 @@ interface SearchRepository {
     ): Flow<PagingData<GifDomain>>
 
     suspend fun setGifIsCached(id: String)
+
+    suspend fun setGifIsDeleted(id: String)
 }

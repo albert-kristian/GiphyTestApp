@@ -11,6 +11,7 @@ import androidx.paging.map
 import com.example.natifetestapp.domain.models.GifDomain
 import com.example.natifetestapp.domain.useCases.GetGifsPagingFlowUseCase
 import com.example.natifetestapp.domain.useCases.GetGifsUseCase
+import com.example.natifetestapp.domain.useCases.SetGifDeletedUseCase
 import com.example.natifetestapp.presentation.ui.mapping.toUIModel
 import com.example.natifetestapp.presentation.ui.models.GifUIModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,7 +29,8 @@ import javax.inject.Inject
 @HiltViewModel
 class MainGifsViewModel @Inject constructor(
     private val getGifsUseCase: GetGifsUseCase,
-    private val getGifsPagingFlowUseCase: GetGifsPagingFlowUseCase
+    private val getGifsPagingFlowUseCase: GetGifsPagingFlowUseCase,
+    private val setGifDeletedUseCase: SetGifDeletedUseCase
 ): ViewModel() {
 
     private val _uiState = mutableStateOf<UiState>(UiState.Loading)
@@ -46,6 +48,12 @@ class MainGifsViewModel @Inject constructor(
 
     fun onSearchQueryChange(searchQuery: String) {
         _searchQuery.value = searchQuery
+    }
+
+    fun onDeleteGif(id: String) {
+        viewModelScope.launch {
+            setGifDeletedUseCase.execute(id)
+        }
     }
 
     private suspend fun listenToSearchQueryChanges() {

@@ -11,6 +11,7 @@ data class GifEntity(
     val addedTime: Long = Date().time,
     val isCached: Boolean = false,
     val title: String,
+    val isDeleted: Boolean = false,
     @ColumnInfo(name = "thumbnail_height") val thumbnailHeight: Int,
     @ColumnInfo(name = "thumbnail_width") val thumbnailWidth: Int,
     @ColumnInfo(name = "thumbnail_url") val thumbnailUrl: String,

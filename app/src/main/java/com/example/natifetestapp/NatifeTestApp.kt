@@ -11,7 +11,7 @@ import coil.disk.DiskCache
 import coil.memory.MemoryCache
 import coil.request.ImageRequest
 import coil.request.SuccessResult
-import com.example.natifetestapp.data.repository.SearchRepository
+import com.example.natifetestapp.data.repository.GifsRepository
 import com.example.natifetestapp.di.coroutines.ApplicationScope
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
@@ -22,7 +22,7 @@ import javax.inject.Inject
 class NatifeTestApp: Application(), ImageLoaderFactory {
 
     @Inject
-    lateinit var searchRepository: SearchRepository
+    lateinit var gifsRepository: GifsRepository
 
     @Inject
     @ApplicationScope
@@ -54,7 +54,7 @@ class NatifeTestApp: Application(), ImageLoaderFactory {
                         super.onSuccess(request, result)
                         result.diskCacheKey?.let { key ->
                             scope.launch {
-                                searchRepository.setGifIsCached(key)
+                                gifsRepository.setGifIsCached(key)
                             }
                         }
                     }
