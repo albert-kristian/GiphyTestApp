@@ -15,7 +15,9 @@ data class GifResponse(
 data class ImagesResponse(
     val original: ImageResponse,
     @SerializedName("fixed_width_small")
-    var fixedWidthSmall: ImageResponse
+    val fixedWidthSmall: ImageResponse,
+    @SerializedName("fixed_width_downsampled")
+    val fixedWidthDownsampled: ImageResponse
 )
 
 data class ImageResponse(

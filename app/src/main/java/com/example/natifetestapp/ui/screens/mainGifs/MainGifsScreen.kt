@@ -87,7 +87,7 @@ private fun MainGifsSuccessView(
                     modifier = Modifier
                         .fillMaxWidth(),
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data(gif.images.original.url)
+                        .data(gif.images.fixedWidthDownsampled.url)
                         .crossfade(true)
                         .build(),
                     contentDescription = gif.title,
