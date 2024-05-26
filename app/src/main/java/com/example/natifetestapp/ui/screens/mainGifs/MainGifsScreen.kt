@@ -5,10 +5,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +28,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.example.natifetestapp.remote.services.gifs.responses.GifResponse
+import com.example.natifetestapp.ui.components.topBars.SearchTopBar
 import com.example.natifetestapp.ui.screens.mainGifs.MainGifsViewModel.UiState.Failure
 import com.example.natifetestapp.ui.screens.mainGifs.MainGifsViewModel.UiState.Loading
 import com.example.natifetestapp.ui.screens.mainGifs.MainGifsViewModel.UiState.NoResults
@@ -35,21 +39,37 @@ import kotlin.random.Random
 fun MainGifsScreen() {
     val viewModel = hiltViewModel<MainGifsViewModel>()
 
-    MainGifsContent(uiState = viewModel.uiState.value)
+    MainGifsContent(
+        searchQuery = viewModel.searchQuery.value,
+        onSearchQueryChange = viewModel::onSearchQueryChange,
+        uiState = viewModel.uiState.value
+    )
 }
 
 @Composable
 private fun MainGifsContent(
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit,
     uiState: MainGifsViewModel.UiState
 ) {
-    Surface(
-        modifier = Modifier
-    ) {
-        when (uiState) {
-            is Failure -> MainGifsFailureView(message = uiState.message)
-            is Loading -> MainGifsLoadingView()
-            is NoResults -> MainGifsNoResultsView()
-            is Success -> MainGifsSuccessView(gifs = uiState.gifs.collectAsLazyPagingItems())
+    Scaffold(
+        modifier = Modifier.statusBarsPadding(),
+        topBar = {
+            SearchTopBar(
+                query = searchQuery,
+                onQueryChange = onSearchQueryChange
+            )
+        }
+    ) { paddingValues ->
+        Surface(
+            modifier = Modifier.padding(paddingValues)
+        ) {
+            when (uiState) {
+                is Failure -> MainGifsFailureView(message = uiState.message)
+                is Loading -> MainGifsLoadingView()
+                is NoResults -> MainGifsNoResultsView()
+                is Success -> MainGifsSuccessView(gifs = uiState.gifs.collectAsLazyPagingItems())
+            }
         }
     }
 }
@@ -59,7 +79,7 @@ private fun MainGifsSuccessView(
     gifs: LazyPagingItems<GifResponse>
 ) {
     LazyVerticalStaggeredGrid(
-        columns = StaggeredGridCells.Adaptive(200.dp)
+        columns = StaggeredGridCells.Fixed(2)
     ) {
         items(gifs.itemCount) { gifIndex ->
             gifs[gifIndex]?.let { gif ->
@@ -76,7 +96,7 @@ private fun MainGifsSuccessView(
                         Box(
                             modifier = Modifier
                                 .background(Color(Random.nextInt(255)))
-                                .fillMaxWidth(.5f)
+                                .fillMaxWidth()
                                 .height(150.dp),
                             contentAlignment = Alignment.Center
                         ) {
