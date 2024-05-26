@@ -1,17 +1,21 @@
 package com.example.natifetestapp.di.services
 
-import com.example.natifetestapp.remote.services.gifs.api.SearchApi
-import com.example.natifetestapp.remote.services.gifs.repository.SearchRepository
-import com.example.natifetestapp.remote.services.gifs.repository.SearchRepositoryImpl
+import com.example.natifetestapp.data.local.daos.GifDao
+import com.example.natifetestapp.data.remote.services.gifs.api.SearchApi
+import com.example.natifetestapp.data.repository.SearchRepository
+import com.example.natifetestapp.data.repository.SearchRepositoryImpl
+import com.example.natifetestapp.di.IoDispatcher
+import com.example.natifetestapp.utils.NetworkConnectionHelper
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineDispatcher
 import retrofit2.Retrofit
 import javax.inject.Singleton
 
 @Module
-@InstallIn(SingletonComponent::class) // TODO: should be viewModel scoped
+@InstallIn(SingletonComponent::class)
 object SearchModule {
 
     @Provides
@@ -22,7 +26,17 @@ object SearchModule {
 
     @Provides
     @Singleton
-    fun provideSearchRepository(searchApi: SearchApi): SearchRepository {
-        return SearchRepositoryImpl(searchApi)
+    fun provideSearchRepository(
+        @IoDispatcher dispatcher: CoroutineDispatcher,
+        connectionHelper: NetworkConnectionHelper,
+        searchApi: SearchApi,
+        gifDao: GifDao
+    ): SearchRepository {
+        return SearchRepositoryImpl(
+            dispatcher = dispatcher,
+            connectionHelper = connectionHelper,
+            searchApi = searchApi,
+            gifDao = gifDao
+        )
     }
 }

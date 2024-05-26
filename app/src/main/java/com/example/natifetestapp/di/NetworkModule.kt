@@ -1,10 +1,13 @@
 package com.example.natifetestapp.di
 
+import android.content.Context
 import com.example.natifetestapp.BuildConfig
-import com.example.natifetestapp.remote.interceptors.ApiTokenInterceptor
+import com.example.natifetestapp.data.remote.interceptors.ApiTokenInterceptor
+import com.example.natifetestapp.utils.NetworkConnectionHelper
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -27,11 +30,21 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
+    fun provideRetrofit(
+        okHttpClient: OkHttpClient
+    ): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideNetworkConnectionHelper(
+        @ApplicationContext context: Context
+    ): NetworkConnectionHelper {
+        return NetworkConnectionHelper(context)
     }
 }
