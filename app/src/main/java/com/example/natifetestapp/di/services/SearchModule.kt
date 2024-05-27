@@ -4,28 +4,28 @@ import com.example.natifetestapp.data.local.daos.GifDao
 import com.example.natifetestapp.data.remote.services.gifs.api.SearchApi
 import com.example.natifetestapp.data.repository.GifsRepository
 import com.example.natifetestapp.data.repository.GifsRepositoryImpl
-import com.example.natifetestapp.di.IoDispatcher
+import com.example.natifetestapp.di.coroutines.IoDispatcher
 import com.example.natifetestapp.utils.NetworkConnectionHelper
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
+import dagger.hilt.android.components.ViewModelComponent
+import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.CoroutineDispatcher
 import retrofit2.Retrofit
-import javax.inject.Singleton
 
 @Module
-@InstallIn(SingletonComponent::class)
+@InstallIn(ViewModelComponent::class)
 object SearchModule {
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun provideSearchApi(retrofit: Retrofit): SearchApi {
         return retrofit.create(SearchApi::class.java)
     }
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun provideSearchRepository(
         @IoDispatcher dispatcher: CoroutineDispatcher,
         connectionHelper: NetworkConnectionHelper,

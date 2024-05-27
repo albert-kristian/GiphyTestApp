@@ -9,7 +9,6 @@ import java.util.Date
 data class GifEntity(
     @PrimaryKey val id: String,
     val addedTime: Long = Date().time,
-    val isCached: Boolean = false,
     val title: String,
     val isDeleted: Boolean = false,
     @ColumnInfo(name = "thumbnail_height") val thumbnailHeight: Int,

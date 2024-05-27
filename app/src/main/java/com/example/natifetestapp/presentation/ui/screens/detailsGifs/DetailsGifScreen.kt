@@ -8,6 +8,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -44,6 +45,13 @@ private fun DetailsGiftsContent(
             val state = rememberPagerState(
                 initialPage = uiState.initialItemIndex
             ) { gifs.itemCount }
+
+            LaunchedEffect(key1 = gifs.itemCount) {
+                if (gifs.itemCount > uiState.initialItemIndex && state.currentPage != uiState.initialItemIndex) {
+                    state.scrollToPage(uiState.initialItemIndex)
+                }
+            }
+
             HorizontalPager(
                 modifier = Modifier.fillMaxSize(),
                 state = state
@@ -51,6 +59,7 @@ private fun DetailsGiftsContent(
                 gifs[page]?.let { gif ->
                     GifImage(
                         id = gif.id,
+                        shouldShowNonCachedGifs = true, //TODO
                         gifTitle = gif.title,
                         url = gif.thumbnailGifUrl,
                         aspectRation = gif.thumbnailAspectRatio,

@@ -10,8 +10,8 @@ interface SearchApi {
     @GET("gifs/search")
     suspend fun getGifs(
         @Query("q") q: String,
-        @Query("limit") limit: Int = 5,
-        @Query("offset") offset: Int = 0,
+        @Query("limit") limit: Int,
+        @Query("offset") offset: Int,
         @Query("rating") rating: String = "g",
         @Query("lang") lang: String = "en",
     ): GiphyResponse<GifsResponse>

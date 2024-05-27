@@ -9,7 +9,7 @@ import com.example.natifetestapp.data.local.mapping.toEntity
 import com.example.natifetestapp.data.remote.mapping.toDomain
 import com.example.natifetestapp.data.remote.services.gifs.api.SearchApi
 import com.example.natifetestapp.data.paging.GifsPagingSource
-import com.example.natifetestapp.di.IoDispatcher
+import com.example.natifetestapp.di.coroutines.IoDispatcher
 import com.example.natifetestapp.domain.models.GifDomain
 import com.example.natifetestapp.utils.NetworkConnectionHelper
 import kotlinx.coroutines.CoroutineDispatcher
@@ -46,9 +46,7 @@ class GifsRepositoryImpl(
                 gifDao.getGifs(
                     limit = limit,
                     offset = offset
-                ).filter { gifEntity ->
-                    gifEntity.isCached
-                }.map { gifEntity ->
+                ).map { gifEntity ->
                     gifEntity.toDomain()
                 }
             }
@@ -77,15 +75,6 @@ class GifsRepositoryImpl(
         return pager?.flow ?: flowOf()
     }
 
-    override suspend fun setGifIsCached(id: String) {
-        withContext(dispatcher) {
-            val updatedGifEntity = gifDao.getGifById(id).copy(
-                isCached = true
-            )
-            gifDao.insert(updatedGifEntity)
-        }
-    }
-
     override suspend fun setGifIsDeleted(id: String) {
         withContext(dispatcher) {
             val updatedGifEntity = gifDao.getGifById(id).copy(
@@ -99,7 +88,11 @@ class GifsRepositoryImpl(
         withContext(dispatcher) {
             gifs.forEach {
                 val existingEntity = gifDao.getOptionalGifById(it.id)
-                gifDao.insert(it.toEntity(isDeleted = existingEntity?.isDeleted == true))
+                gifDao.insert(
+                    it.toEntity(
+                        isDeleted = existingEntity?.isDeleted == true
+                    )
+                )
             }
         }
     }

@@ -21,7 +21,5 @@ interface GifsRepository {
         query: String,
     ): Flow<PagingData<GifDomain>>
 
-    suspend fun setGifIsCached(id: String)
-
     suspend fun setGifIsDeleted(id: String)
 }

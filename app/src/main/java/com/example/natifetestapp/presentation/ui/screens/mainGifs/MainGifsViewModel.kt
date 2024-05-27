@@ -14,6 +14,7 @@ import com.example.natifetestapp.domain.useCases.GetGifsUseCase
 import com.example.natifetestapp.domain.useCases.SetGifDeletedUseCase
 import com.example.natifetestapp.presentation.ui.mapping.toUIModel
 import com.example.natifetestapp.presentation.ui.models.GifUIModel
+import com.example.natifetestapp.utils.NetworkConnectionHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -30,7 +31,8 @@ import javax.inject.Inject
 class MainGifsViewModel @Inject constructor(
     private val getGifsUseCase: GetGifsUseCase,
     private val getGifsPagingFlowUseCase: GetGifsPagingFlowUseCase,
-    private val setGifDeletedUseCase: SetGifDeletedUseCase
+    private val setGifDeletedUseCase: SetGifDeletedUseCase,
+    private val connectionHelper: NetworkConnectionHelper
 ): ViewModel() {
 
     private val _uiState = mutableStateOf<UiState>(UiState.Loading)
@@ -96,13 +98,19 @@ class MainGifsViewModel @Inject constructor(
                 domainModel.toUIModel()
             }
         }.cachedIn(viewModelScope)
-        _uiState.value = UiState.Success(gifs = pagingDataFlow)
+        _uiState.value = UiState.Success(
+            gifs = pagingDataFlow,
+            shouldShowNonCachedGifs = connectionHelper.isOnline
+        )
     }
 
     sealed class UiState {
         data object Loading: UiState()
         data object NoResults: UiState()
-        data class Success(val gifs: Flow<PagingData<GifUIModel>>): UiState()
+        data class Success(
+            val gifs: Flow<PagingData<GifUIModel>>,
+            val shouldShowNonCachedGifs: Boolean
+        ): UiState()
         data class Failure(val message: String): UiState()
     }
 }

@@ -69,6 +69,7 @@ private fun MainGifsContent(
                 is NoResults -> MainGifsNoResultsView()
                 is Success -> MainGifsSuccessView(
                     gifs = uiState.gifs.collectAsLazyPagingItems(),
+                    shouldShowNonCachedGifs = uiState.shouldShowNonCachedGifs,
                     onDeleteGifClicked = onDeleteGifClicked,
                     onGifPressed = onGifPressed
                 )
@@ -82,6 +83,7 @@ private fun MainGifsContent(
 @Composable
 private fun MainGifsSuccessView(
     gifs: LazyPagingItems<GifUIModel>,
+    shouldShowNonCachedGifs: Boolean,
     onDeleteGifClicked: (id: String) -> Unit,
     onGifPressed: (Int) -> Unit
 ) {
@@ -92,6 +94,7 @@ private fun MainGifsSuccessView(
             gifs[gifIndex]?.let { gif ->
                 GifImage(
                     id = gif.id,
+                    shouldShowNonCachedGifs = shouldShowNonCachedGifs,
                     gifTitle = gif.title,
                     url = gif.thumbnailGifUrl,
                     aspectRation = gif.thumbnailAspectRatio,
