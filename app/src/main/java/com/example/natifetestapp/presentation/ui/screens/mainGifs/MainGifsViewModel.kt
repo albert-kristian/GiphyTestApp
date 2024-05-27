@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.filter
 import androidx.paging.map
 import com.example.natifetestapp.domain.models.GifDomain
 import com.example.natifetestapp.domain.useCases.GetGifsPagingFlowUseCase
@@ -94,9 +95,12 @@ class MainGifsViewModel @Inject constructor(
             initialValues = gifs,
             query = searchQuery
         ).map { pagingData ->
-            pagingData.map { domainModel ->
-                domainModel.toUIModel()
-            }
+            pagingData
+                .filter { domainModel ->
+                    domainModel.shouldBeShown
+                }.map { domainModel ->
+                    domainModel.toUIModel()
+                }
         }.cachedIn(viewModelScope)
         _uiState.value = UiState.Success(
             gifs = pagingDataFlow,

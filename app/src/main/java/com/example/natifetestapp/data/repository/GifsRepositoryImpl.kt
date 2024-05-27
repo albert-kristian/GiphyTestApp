@@ -52,7 +52,7 @@ class GifsRepositoryImpl(
             }
             gifDomains
         }
-        return result.filterDeletedGifs()
+        return result.handleDeletedGifs()
     }
 
     override fun getGifsPaginated(
@@ -86,10 +86,10 @@ class GifsRepositoryImpl(
 
     private suspend fun saveGifs(gifs: List<GifDomain>) {
         withContext(dispatcher) {
-            gifs.forEach {
-                val existingEntity = gifDao.getOptionalGifById(it.id)
+            gifs.forEach { gifDomain ->
+                val existingEntity = gifDao.getOptionalGifById(gifDomain.id)
                 gifDao.insert(
-                    it.toEntity(
+                    gifDomain.toEntity(
                         isDeleted = existingEntity?.isDeleted == true
                     )
                 )
@@ -97,11 +97,12 @@ class GifsRepositoryImpl(
         }
     }
 
-    private suspend fun List<GifDomain>.filterDeletedGifs(): List<GifDomain> {
-        return filterNot { gifDomain ->
+    private suspend fun List<GifDomain>.handleDeletedGifs(): List<GifDomain> {
+        return map { gifDomain ->
             withContext(dispatcher) {
-                gifDao.getOptionalGifById(gifDomain.id)
-            }?.isDeleted == true
+                val existingEntity = gifDao.getOptionalGifById(gifDomain.id)
+                gifDomain.copy(shouldBeShown = existingEntity?.isDeleted == false)
+            }
         }
     }
 }
