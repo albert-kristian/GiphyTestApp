@@ -14,6 +14,7 @@ import com.example.natifetestapp.domain.models.GifDomain
 import com.example.natifetestapp.utils.NetworkConnectionHelper
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.withContext
 
 class GifsRepositoryImpl(
@@ -22,6 +23,8 @@ class GifsRepositoryImpl(
     private val searchApi: SearchApi,
     private val gifDao: GifDao
 ): GifsRepository {
+
+    private var pager: Pager<Int, GifDomain>? = null
 
     override suspend fun getGifs(
         query: String,
@@ -58,7 +61,10 @@ class GifsRepositoryImpl(
         initialValues: List<GifDomain>,
         query: String
     ): Flow<PagingData<GifDomain>> {
-        return Pager(
+        pager?.let {
+            return it.flow
+        }
+        pager = Pager(
             config = PagingConfig(GifsRepository.LIMIT),
             pagingSourceFactory = {
                 GifsPagingSource(
@@ -67,7 +73,8 @@ class GifsRepositoryImpl(
                     gifsRepository = this
                 )
             }
-        ).flow
+        )
+        return pager?.flow ?: flowOf()
     }
 
     override suspend fun setGifIsCached(id: String) {
