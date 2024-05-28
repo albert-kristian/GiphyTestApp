@@ -5,6 +5,8 @@ import com.example.natifetestapp.domain.useCases.GetGifsPagingFlowUseCase
 import com.example.natifetestapp.domain.useCases.GetGifsPagingFlowUseCaseImpl
 import com.example.natifetestapp.domain.useCases.GetGifsUseCase
 import com.example.natifetestapp.domain.useCases.GetGifsUseCaseImpl
+import com.example.natifetestapp.domain.useCases.GetLoadedGifsUseCase
+import com.example.natifetestapp.domain.useCases.GetLoadedGifsUseCaseImpl
 import com.example.natifetestapp.domain.useCases.SetGifDeletedUseCase
 import com.example.natifetestapp.domain.useCases.SetGifDeletedUseCaseImpl
 import dagger.Module
@@ -39,5 +41,13 @@ object UseCasesModule {
         repository: GifsRepository
     ): SetGifDeletedUseCase {
         return SetGifDeletedUseCaseImpl(repository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetLoadedGifsUseCase(
+        repository: GifsRepository
+    ): GetLoadedGifsUseCase {
+        return GetLoadedGifsUseCaseImpl(repository)
     }
 }

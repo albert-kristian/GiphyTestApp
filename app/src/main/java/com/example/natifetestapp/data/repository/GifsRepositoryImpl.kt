@@ -6,15 +6,14 @@ import androidx.paging.PagingData
 import com.example.natifetestapp.data.local.daos.GifDao
 import com.example.natifetestapp.data.local.mapping.toDomain
 import com.example.natifetestapp.data.local.mapping.toEntity
+import com.example.natifetestapp.data.paging.GifsPagingSource
 import com.example.natifetestapp.data.remote.mapping.toDomain
 import com.example.natifetestapp.data.remote.services.gifs.api.SearchApi
-import com.example.natifetestapp.data.paging.GifsPagingSource
 import com.example.natifetestapp.di.coroutines.IoDispatcher
 import com.example.natifetestapp.domain.models.GifDomain
 import com.example.natifetestapp.utils.NetworkConnectionHelper
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.withContext
 
 class GifsRepositoryImpl(
@@ -24,7 +23,7 @@ class GifsRepositoryImpl(
     private val gifDao: GifDao
 ): GifsRepository {
 
-    private var pager: Pager<Int, GifDomain>? = null
+    private var loadedItems: Set<GifDomain> = mutableSetOf()
 
     override suspend fun getGifs(
         query: String,
@@ -52,27 +51,26 @@ class GifsRepositoryImpl(
             }
             gifDomains
         }
-        return result.handleDeletedGifs()
+        return result.handleDeletedGifs().also {
+            loadedItems += it
+        }
     }
 
     override fun getGifsPaginated(
         initialValues: List<GifDomain>,
-        query: String,
-        refreshPager: Boolean
+        query: String
     ): Flow<PagingData<GifDomain>> {
-        if (refreshPager || pager == null) {
-            pager = Pager(
-                config = PagingConfig(GifsRepository.LIMIT),
-                pagingSourceFactory = {
-                    GifsPagingSource(
-                        initialValues = initialValues,
-                        query = query,
-                        gifsRepository = this
-                    )
-                }
-            )
-        }
-        return pager?.flow ?: flowOf()
+        loadedItems = initialValues.toSet()
+        return Pager(
+            config = PagingConfig(GifsRepository.LIMIT),
+            pagingSourceFactory = {
+                GifsPagingSource(
+                    initialValues = initialValues,
+                    query = query,
+                    gifsRepository = this
+                )
+            }
+        ).flow
     }
 
     override suspend fun setGifIsDeleted(id: String) {
@@ -83,6 +81,8 @@ class GifsRepositoryImpl(
             gifDao.insert(updatedGifEntity)
         }
     }
+
+    override fun getAlreadyLoadedItems(): List<GifDomain> = loadedItems.toList()
 
     private suspend fun saveGifs(gifs: List<GifDomain>) {
         withContext(dispatcher) {

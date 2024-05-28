@@ -23,6 +23,6 @@ class GetGifsPagingFlowUseCaseImpl(
         query: String,
         refreshPager: Boolean
     ): Flow<PagingData<GifDomain>> {
-        return repository.getGifsPaginated(initialValues, query, refreshPager)
+        return repository.getGifsPaginated(initialValues, query)
     }
 }

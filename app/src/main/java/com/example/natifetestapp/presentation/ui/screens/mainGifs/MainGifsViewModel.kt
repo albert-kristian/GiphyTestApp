@@ -48,7 +48,7 @@ class MainGifsViewModel @Inject constructor(
     init {
         _isSearchVisible.value = connectionHelper.isOnline
         viewModelScope.launch {
-            getGifs(_searchQuery.value, refreshPager = false)
+            getGifs(_searchQuery.value)
             listenToSearchQueryChanges()
         }
     }
@@ -73,16 +73,20 @@ class MainGifsViewModel @Inject constructor(
         ).debounce(
             timeoutMillis = 500
         ).collectLatest { query ->
-            getGifs(query, refreshPager = true)
+            _uiState.value = UiState.Loading
+            getGifs(query)
         }
     }
 
-    private suspend fun getGifs(searchQuery: String, refreshPager: Boolean) {
+    private suspend fun getGifs(searchQuery: String) {
         getGifsUseCase.execute(query = searchQuery).onSuccess { gifs ->
             if (gifs.isEmpty()) {
                 _uiState.value = UiState.NoResults
             } else {
-                getGifsPagingFlow(gifs = gifs, searchQuery = searchQuery, refreshPager = refreshPager)
+                getGifsPagingFlow(
+                    gifs = gifs,
+                    searchQuery = searchQuery
+                )
             }
         }.onFailure { exception ->
             _uiState.value = UiState.Failure(
@@ -93,13 +97,11 @@ class MainGifsViewModel @Inject constructor(
 
     private suspend fun getGifsPagingFlow(
         gifs: List<GifDomain>,
-        searchQuery: String,
-        refreshPager: Boolean = false
+        searchQuery: String
     ) {
         val pagingDataFlow = getGifsPagingFlowUseCase.execute(
             initialValues = gifs,
-            query = searchQuery,
-            refreshPager = refreshPager
+            query = searchQuery
         ).map { pagingData ->
             pagingData
                 .filter { domainModel ->
