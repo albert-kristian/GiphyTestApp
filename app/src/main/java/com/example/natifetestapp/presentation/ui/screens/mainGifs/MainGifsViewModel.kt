@@ -51,6 +51,11 @@ class MainGifsViewModel @Inject constructor(
             getGifs()
             listenToSearchQueryChanges()
         }
+        viewModelScope.launch {
+            connectionHelper.stateFlow.collect {
+                getGifs()
+            }
+        }
     }
 
     fun onSearchQueryChange(searchQuery: String) {

@@ -5,11 +5,24 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.launch
 
-class NetworkConnectionHelper(context: Context) : ConnectivityManager.NetworkCallback() {
+class NetworkConnectionHelper(
+    context: Context,
+    dispatcher: CoroutineDispatcher
+) : ConnectivityManager.NetworkCallback() {
 
     private var _isOnline = false
     val isOnline get() = _isOnline
+
+    private val _stateFlow = MutableSharedFlow<Unit>()
+    val stateFlow: Flow<Unit> = _stateFlow
+
+    private val scope = CoroutineScope(dispatcher)
 
     init {
         val connectivityManager =
@@ -24,20 +37,21 @@ class NetworkConnectionHelper(context: Context) : ConnectivityManager.NetworkCal
         connectivityManager.requestNetwork(networkRequest, this)
     }
 
-
-
     override fun onAvailable(network: Network) {
         super.onAvailable(network)
         _isOnline = true
+        scope.launch { _stateFlow.emit(Unit) }
     }
 
     override fun onUnavailable() {
         super.onUnavailable()
         _isOnline = false
+        scope.launch { _stateFlow.emit(Unit) }
     }
 
     override fun onLost(network: Network) {
         super.onLost(network)
         _isOnline = false
+        scope.launch { _stateFlow.emit(Unit) }
     }
 }
