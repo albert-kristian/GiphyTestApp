@@ -6,7 +6,7 @@ import com.example.natifetestapp.data.local.daos.GifDao
 import com.example.natifetestapp.data.local.entities.GifEntity
 
 @Database(entities = [GifEntity::class], version = 1)
-abstract class AppDatabase : RoomDatabase() {
+abstract class AppDatabase: RoomDatabase() {
 
     abstract fun gifDao(): GifDao
 }

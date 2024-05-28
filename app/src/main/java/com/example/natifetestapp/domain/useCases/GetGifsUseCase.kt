@@ -8,7 +8,9 @@ interface GetGifsUseCase {
     suspend fun execute(query: String): Result<List<GifDomain>>
 }
 
-class GetGifsUseCaseImpl(private val repository: GifsRepository): GetGifsUseCase {
+class GetGifsUseCaseImpl(
+    private val repository: GifsRepository
+): GetGifsUseCase {
 
     override suspend fun execute(query: String): Result<List<GifDomain>> {
         return try {

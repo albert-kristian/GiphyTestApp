@@ -42,7 +42,7 @@ class MainGifsViewModel @Inject constructor(
     private val _isSearchVisible = mutableStateOf(true)
     val isSearchVisible: State<Boolean> = _isSearchVisible
 
-    private val _searchQuery = mutableStateOf("lofi")
+    private val _searchQuery = mutableStateOf("confused dog")
     val searchQuery: State<String> = _searchQuery
 
     init {
@@ -53,6 +53,7 @@ class MainGifsViewModel @Inject constructor(
         }
         viewModelScope.launch {
             connectionHelper.stateFlow.collect {
+                _isSearchVisible.value = connectionHelper.isOnline
                 getGifs()
             }
         }

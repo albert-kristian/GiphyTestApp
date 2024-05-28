@@ -39,6 +39,7 @@ fun GifImage(
     gifTitle: String,
     url: String,
     aspectRation: Float,
+    isEditable: Boolean = true,
     onDeleteGifClicked: (id: String) -> Unit,
     onGifPressed: () -> Unit
 ) {
@@ -57,7 +58,9 @@ fun GifImage(
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onLongPress = {
-                            showDeleteButton = !showDeleteButton
+                            if (isEditable) {
+                                showDeleteButton = !showDeleteButton
+                            }
                         },
                         onTap = {
                             onGifPressed()

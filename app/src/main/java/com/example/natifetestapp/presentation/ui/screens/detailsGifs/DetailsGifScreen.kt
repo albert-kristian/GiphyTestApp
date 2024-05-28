@@ -73,6 +73,7 @@ private fun DetailsGifsSuccessView(
                 gifTitle = gif.title,
                 url = gif.thumbnailGifUrl,
                 aspectRation = gif.thumbnailAspectRatio,
+                isEditable = false,
                 onDeleteGifClicked = {},
                 onGifPressed = {}
             )

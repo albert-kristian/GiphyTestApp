@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 class NetworkConnectionHelper(
     context: Context,
     dispatcher: CoroutineDispatcher
-) : ConnectivityManager.NetworkCallback() {
+): ConnectivityManager.NetworkCallback() {
 
     private var _isOnline = false
     val isOnline get() = _isOnline

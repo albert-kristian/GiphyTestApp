@@ -13,7 +13,10 @@ interface BaseRoute {
     fun route(): String = buildRouteInternal()
 }
 
-fun BaseRoute.buildRoute(path: String? = null, arguments: Map<String, Any?>? = null): String {
+fun BaseRoute.buildRoute(
+    path: String? = null,
+    arguments: Map<String, Any?>? = null
+): String {
     val builder = Uri.Builder()
         .scheme(BaseRoute.SCHEME)
         .authority(authority)
