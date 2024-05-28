@@ -19,6 +19,7 @@ interface GifsRepository {
     fun getGifsPaginated(
         initialValues: List<GifDomain>,
         query: String,
+        refreshPager: Boolean
     ): Flow<PagingData<GifDomain>>
 
     suspend fun setGifIsDeleted(id: String)

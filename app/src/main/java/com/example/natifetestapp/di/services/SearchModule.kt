@@ -9,23 +9,23 @@ import com.example.natifetestapp.utils.NetworkConnectionHelper
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-import dagger.hilt.android.scopes.ViewModelScoped
+import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
 import retrofit2.Retrofit
+import javax.inject.Singleton
 
 @Module
-@InstallIn(ViewModelComponent::class)
+@InstallIn(SingletonComponent::class)
 object SearchModule {
 
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideSearchApi(retrofit: Retrofit): SearchApi {
         return retrofit.create(SearchApi::class.java)
     }
 
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideSearchRepository(
         @IoDispatcher dispatcher: CoroutineDispatcher,
         connectionHelper: NetworkConnectionHelper,

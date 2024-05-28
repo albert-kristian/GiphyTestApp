@@ -9,7 +9,8 @@ interface GetGifsPagingFlowUseCase {
 
     suspend fun execute(
         initialValues: List<GifDomain>,
-        query: String
+        query: String,
+        refreshPager: Boolean = false
     ): Flow<PagingData<GifDomain>>
 }
 
@@ -19,8 +20,9 @@ class GetGifsPagingFlowUseCaseImpl(
 
     override suspend fun execute(
         initialValues: List<GifDomain>,
-        query: String
+        query: String,
+        refreshPager: Boolean
     ): Flow<PagingData<GifDomain>> {
-        return repository.getGifsPaginated(initialValues, query)
+        return repository.getGifsPaginated(initialValues, query, refreshPager)
     }
 }

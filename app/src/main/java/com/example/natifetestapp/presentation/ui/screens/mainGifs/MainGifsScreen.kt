@@ -13,13 +13,19 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.filter
+import coil.imageLoader
 import com.example.natifetestapp.presentation.ui.components.GifImage
 import com.example.natifetestapp.presentation.ui.components.topBars.SearchTopBar
 import com.example.natifetestapp.presentation.ui.models.GifUIModel
@@ -27,6 +33,8 @@ import com.example.natifetestapp.presentation.ui.screens.mainGifs.MainGifsViewMo
 import com.example.natifetestapp.presentation.ui.screens.mainGifs.MainGifsViewModel.UiState.Loading
 import com.example.natifetestapp.presentation.ui.screens.mainGifs.MainGifsViewModel.UiState.NoResults
 import com.example.natifetestapp.presentation.ui.screens.mainGifs.MainGifsViewModel.UiState.Success
+import com.example.natifetestapp.utils.extensions.isImageCached
+import kotlinx.coroutines.flow.map
 
 @Composable
 fun MainGifsScreen(
@@ -36,6 +44,7 @@ fun MainGifsScreen(
 
     MainGifsContent(
         searchQuery = viewModel.searchQuery.value,
+        isSearchVisible = viewModel.isSearchVisible.value,
         onSearchQueryChange = viewModel::onSearchQueryChange,
         onDeleteGifClicked = viewModel::onDeleteGif,
         onGifPressed = onGifPressed,
@@ -46,6 +55,7 @@ fun MainGifsScreen(
 @Composable
 private fun MainGifsContent(
     searchQuery: String,
+    isSearchVisible: Boolean,
     onSearchQueryChange: (String) -> Unit,
     onDeleteGifClicked: (id: String) -> Unit,
     onGifPressed: (Int) -> Unit,
@@ -54,10 +64,12 @@ private fun MainGifsContent(
     Scaffold(
         modifier = Modifier.statusBarsPadding(),
         topBar = {
-            SearchTopBar(
-                query = searchQuery,
-                onQueryChange = onSearchQueryChange
-            )
+            if (isSearchVisible) {
+                SearchTopBar(
+                    query = searchQuery,
+                    onQueryChange = onSearchQueryChange
+                )
+            }
         }
     ) { paddingValues ->
         Surface(
@@ -67,12 +79,23 @@ private fun MainGifsContent(
                 is Failure -> MainGifsFailureView(message = uiState.message)
                 is Loading -> MainGifsLoadingView()
                 is NoResults -> MainGifsNoResultsView()
-                is Success -> MainGifsSuccessView(
-                    gifs = uiState.gifs.collectAsLazyPagingItems(),
-                    shouldShowNonCachedGifs = uiState.shouldShowNonCachedGifs,
-                    onDeleteGifClicked = onDeleteGifClicked,
-                    onGifPressed = onGifPressed
-                )
+                is Success -> {
+                    val imageLoader = LocalContext.current.imageLoader
+                    val gifs by remember {
+                        mutableStateOf(
+                            uiState.gifs.map {
+                                it.filter { gif ->
+                                    uiState.shouldShowNonCachedGifs || imageLoader.isImageCached(gif.id)
+                                }
+                            }
+                        )
+                    }
+                    MainGifsSuccessView(
+                        gifs = gifs.collectAsLazyPagingItems(),
+                        onDeleteGifClicked = onDeleteGifClicked,
+                        onGifPressed = onGifPressed
+                    )
+                }
             }
         }
     }
@@ -83,7 +106,6 @@ private fun MainGifsContent(
 @Composable
 private fun MainGifsSuccessView(
     gifs: LazyPagingItems<GifUIModel>,
-    shouldShowNonCachedGifs: Boolean,
     onDeleteGifClicked: (id: String) -> Unit,
     onGifPressed: (Int) -> Unit
 ) {
@@ -94,7 +116,6 @@ private fun MainGifsSuccessView(
             gifs[gifIndex]?.let { gif ->
                 GifImage(
                     id = gif.id,
-                    shouldShowNonCachedGifs = shouldShowNonCachedGifs,
                     gifTitle = gif.title,
                     url = gif.thumbnailGifUrl,
                     aspectRation = gif.thumbnailAspectRatio,
@@ -125,7 +146,7 @@ private fun MainGifsSuccessView(
                         Text(text = "Failed to load next Items")
                     }
                 }
-                is LoadState.NotLoading -> { }
+                is LoadState.NotLoading -> {}
             }
         }
     }

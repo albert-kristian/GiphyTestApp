@@ -57,21 +57,21 @@ class GifsRepositoryImpl(
 
     override fun getGifsPaginated(
         initialValues: List<GifDomain>,
-        query: String
+        query: String,
+        refreshPager: Boolean
     ): Flow<PagingData<GifDomain>> {
-        pager?.let {
-            return it.flow
+        if (refreshPager || pager == null) {
+            pager = Pager(
+                config = PagingConfig(GifsRepository.LIMIT),
+                pagingSourceFactory = {
+                    GifsPagingSource(
+                        initialValues = initialValues,
+                        query = query,
+                        gifsRepository = this
+                    )
+                }
+            )
         }
-        pager = Pager(
-            config = PagingConfig(GifsRepository.LIMIT),
-            pagingSourceFactory = {
-                GifsPagingSource(
-                    initialValues = initialValues,
-                    query = query,
-                    gifsRepository = this
-                )
-            }
-        )
         return pager?.flow ?: flowOf()
     }
 

@@ -29,17 +29,13 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import coil.annotation.ExperimentalCoilApi
 import coil.compose.SubcomposeAsyncImage
-import coil.imageLoader
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 
-@OptIn(ExperimentalCoilApi::class)
 @Composable
 fun GifImage(
     id: String,
-    shouldShowNonCachedGifs: Boolean,
     gifTitle: String,
     url: String,
     aspectRation: Float,
@@ -48,88 +44,73 @@ fun GifImage(
 ) {
     var showDeleteButton by remember { mutableStateOf(false) }
     var wasDeleted by rememberSaveable { mutableStateOf(false) }
-    val context = LocalContext.current
 
-    @Composable
-    fun isImageCached(): Boolean {
-        return try {
-            context.imageLoader.diskCache?.openSnapshot(id)?.use {
-                it.data.toFile().exists()
-            } ?: false
-        }
-        catch (t : Throwable) {
-            false
-        }
-    }
-
-    if ((isImageCached() || shouldShowNonCachedGifs)) {
-        AnimatedVisibility(
-            visible = !wasDeleted,
-            enter = fadeIn(),
-            exit = fadeOut()
+    AnimatedVisibility(
+        visible = !wasDeleted,
+        enter = fadeIn(),
+        exit = fadeOut()
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(aspectRation)
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onLongPress = {
+                            showDeleteButton = !showDeleteButton
+                        },
+                        onTap = {
+                            onGifPressed()
+                        }
+                    )
+                },
+            contentAlignment = Alignment.Center
         ) {
-            Box(
+            SubcomposeAsyncImage(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(aspectRation)
-                    .pointerInput(Unit) {
-                        detectTapGestures(
-                            onLongPress = {
-                                showDeleteButton = !showDeleteButton
-                            },
-                            onTap = {
-                                onGifPressed()
-                            }
-                        )
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                SubcomposeAsyncImage(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(aspectRation),
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .diskCachePolicy(policy = CachePolicy.ENABLED)
-                        .diskCacheKey(id)
-                        .data(url)
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = gifTitle,
-                    contentScale = ContentScale.FillWidth,
-                    loading = {
-                        Surface(
-                            modifier = Modifier
-                                .size(24.dp)
-                                .padding(80.dp)
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(24.dp),
-                                strokeWidth = 3.dp
-                            )
-                        }
-                    },
-                    error = {
-                        Text(text = "Failed to load Gif")
-                    }
-                )
-                if (showDeleteButton) {
-                    IconButton(
+                    .aspectRatio(aspectRation),
+                model = ImageRequest.Builder(LocalContext.current)
+                    .diskCachePolicy(policy = CachePolicy.ENABLED)
+                    .diskCacheKey(id)
+                    .data(url)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = gifTitle,
+                contentScale = ContentScale.FillWidth,
+                loading = {
+                    Surface(
                         modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .fillMaxWidth(.3f)
-                            .aspectRatio(1f)
-                            .padding(8.dp),
-                        onClick = {
-                            onDeleteGifClicked(id)
-                            wasDeleted = true
-                        }
+                            .size(24.dp)
+                            .padding(80.dp)
                     ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Delete,
-                            contentDescription = "Delete",
-                            tint = Color.Red
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            strokeWidth = 3.dp
                         )
                     }
+                },
+                error = {
+                    Text(text = "Failed to load Gif")
+                }
+            )
+            if (showDeleteButton) {
+                IconButton(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .fillMaxWidth(.3f)
+                        .aspectRatio(1f)
+                        .padding(8.dp),
+                    onClick = {
+                        onDeleteGifClicked(id)
+                        wasDeleted = true
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Delete,
+                        contentDescription = "Delete",
+                        tint = Color.Red
+                    )
                 }
             }
         }

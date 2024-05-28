@@ -39,12 +39,16 @@ class MainGifsViewModel @Inject constructor(
     private val _uiState = mutableStateOf<UiState>(UiState.Loading)
     val uiState: State<UiState> = _uiState
 
+    private val _isSearchVisible = mutableStateOf(true)
+    val isSearchVisible: State<Boolean> = _isSearchVisible
+
     private val _searchQuery = mutableStateOf("lofi")
     val searchQuery: State<String> = _searchQuery
 
     init {
+        _isSearchVisible.value = connectionHelper.isOnline
         viewModelScope.launch {
-            getGifs(_searchQuery.value)
+            getGifs(_searchQuery.value, refreshPager = false)
             listenToSearchQueryChanges()
         }
     }
@@ -69,16 +73,16 @@ class MainGifsViewModel @Inject constructor(
         ).debounce(
             timeoutMillis = 500
         ).collectLatest { query ->
-            getGifs(query)
+            getGifs(query, refreshPager = true)
         }
     }
 
-    private suspend fun getGifs(searchQuery: String) {
+    private suspend fun getGifs(searchQuery: String, refreshPager: Boolean) {
         getGifsUseCase.execute(query = searchQuery).onSuccess { gifs ->
             if (gifs.isEmpty()) {
                 _uiState.value = UiState.NoResults
             } else {
-                getGifsPagingFlow(gifs = gifs, searchQuery = searchQuery)
+                getGifsPagingFlow(gifs = gifs, searchQuery = searchQuery, refreshPager = refreshPager)
             }
         }.onFailure { exception ->
             _uiState.value = UiState.Failure(
@@ -89,11 +93,13 @@ class MainGifsViewModel @Inject constructor(
 
     private suspend fun getGifsPagingFlow(
         gifs: List<GifDomain>,
-        searchQuery: String
+        searchQuery: String,
+        refreshPager: Boolean = false
     ) {
         val pagingDataFlow = getGifsPagingFlowUseCase.execute(
             initialValues = gifs,
-            query = searchQuery
+            query = searchQuery,
+            refreshPager = refreshPager
         ).map { pagingData ->
             pagingData
                 .filter { domainModel ->
