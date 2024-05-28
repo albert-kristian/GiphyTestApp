@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.example.natifetestapp.domain.useCases.GetLoadedGifsUseCase
+import com.example.natifetestapp.presentation.navigation.Routes
 import com.example.natifetestapp.presentation.ui.mapping.toUIModel
 import com.example.natifetestapp.presentation.ui.models.GifUIModel
 import com.example.natifetestapp.utils.NetworkConnectionHelper
@@ -18,7 +19,10 @@ class DetailsGifsViewModel @Inject constructor(
     connectionHelper: NetworkConnectionHelper
 ): ViewModel() {
 
-    private val initialItemIndex: Int = savedStateHandle.get<Int>("initialIndex") ?: 0
+    private val initialItemIndex: Int = run {
+        val key = Routes.DetailsScreenRoute.keyInitialItemIndex
+        requireNotNull(savedStateHandle.get<Int>(key))
+    }
 
     private val _uiState = mutableStateOf<UiState>(UiState.Loading)
     val uiState: State<UiState> = _uiState

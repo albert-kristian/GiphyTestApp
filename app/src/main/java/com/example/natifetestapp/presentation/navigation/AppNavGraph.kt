@@ -12,23 +12,36 @@ import com.example.natifetestapp.presentation.ui.screens.mainGifs.MainGifsScreen
 @Composable
 fun AppNavGraph(
     navHostController: NavHostController,
-    startDestination: String = "main"
+    startDestination: String = Routes.MainScreenRoute.route()
 ) {
     NavHost(
         navController = navHostController,
         startDestination = startDestination
     ) {
-        composable(route = "main") {
+        composable(route = Routes.MainScreenRoute.route()) {
             MainGifsScreen(
                 onGifPressed = { initialIndex ->
-                    navHostController.navigate("details/$initialIndex")
+                    navHostController.navigate(
+                        with(Routes.DetailsScreenRoute) {
+                            buildRoute(
+                                arguments = mapOf(
+                                    keyInitialItemIndex to initialIndex
+                                )
+                            )
+                        }
+                    )
                 }
             )
         }
-
         composable(
-            route = "details/{initialIndex}",
-            arguments = listOf(navArgument("initialIndex") { type = NavType.IntType })
+            route = Routes.DetailsScreenRoute.route(),
+            arguments = listOf(
+                navArgument(
+                    Routes.DetailsScreenRoute.keyInitialItemIndex
+                ) {
+                    type = NavType.IntType
+                }
+            )
         ) {
             DetailsGifsScreen()
         }

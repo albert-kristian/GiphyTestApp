@@ -48,7 +48,7 @@ class MainGifsViewModel @Inject constructor(
     init {
         _isSearchVisible.value = connectionHelper.isOnline
         viewModelScope.launch {
-            getGifs(_searchQuery.value)
+            getGifs()
             listenToSearchQueryChanges()
         }
     }
@@ -63,6 +63,12 @@ class MainGifsViewModel @Inject constructor(
         }
     }
 
+    fun onRetryClicked() {
+        viewModelScope.launch {
+            getGifs()
+        }
+    }
+
     private suspend fun listenToSearchQueryChanges() {
         snapshotFlow {
             _searchQuery.value
@@ -73,12 +79,12 @@ class MainGifsViewModel @Inject constructor(
         ).debounce(
             timeoutMillis = 500
         ).collectLatest { query ->
-            _uiState.value = UiState.Loading
             getGifs(query)
         }
     }
 
-    private suspend fun getGifs(searchQuery: String) {
+    private suspend fun getGifs(searchQuery: String = _searchQuery.value) {
+        _uiState.value = UiState.Loading
         getGifsUseCase.execute(query = searchQuery).onSuccess { gifs ->
             if (gifs.isEmpty()) {
                 _uiState.value = UiState.NoResults

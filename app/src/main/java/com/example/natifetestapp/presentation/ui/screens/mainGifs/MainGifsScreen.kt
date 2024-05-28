@@ -1,6 +1,8 @@
 package com.example.natifetestapp.presentation.ui.screens.mainGifs
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -9,6 +11,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -48,6 +51,7 @@ fun MainGifsScreen(
         onSearchQueryChange = viewModel::onSearchQueryChange,
         onDeleteGifClicked = viewModel::onDeleteGif,
         onGifPressed = onGifPressed,
+        onRetryClicked = viewModel::onRetryClicked,
         uiState = viewModel.uiState.value
     )
 }
@@ -59,6 +63,7 @@ private fun MainGifsContent(
     onSearchQueryChange: (String) -> Unit,
     onDeleteGifClicked: (id: String) -> Unit,
     onGifPressed: (Int) -> Unit,
+    onRetryClicked: () -> Unit,
     uiState: MainGifsViewModel.UiState
 ) {
     Scaffold(
@@ -76,7 +81,10 @@ private fun MainGifsContent(
             modifier = Modifier.padding(paddingValues)
         ) {
             when (uiState) {
-                is Failure -> MainGifsFailureView(message = uiState.message)
+                is Failure -> MainGifsFailureView(
+                    message = uiState.message,
+                    onRetryClicked = onRetryClicked
+                )
                 is Loading -> MainGifsLoadingView()
                 is NoResults -> MainGifsNoResultsView()
                 is Success -> {
@@ -154,13 +162,18 @@ private fun MainGifsSuccessView(
 
 @Composable
 private fun MainGifsFailureView(
-    message: String
+    message: String,
+    onRetryClicked: () -> Unit
 ) {
-    Box(
+    Column(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
         Text(text = message)
+        OutlinedButton(onClick = onRetryClicked) {
+            Text(text = "Try again")
+        }
     }
 }
 
