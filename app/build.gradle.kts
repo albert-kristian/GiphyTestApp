@@ -4,7 +4,7 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
-    id("com.google.dagger.hilt.android") version "2.48"
+    alias(libs.plugins.hilt)
     kotlin("kapt") version "1.9.10"
 }
 
@@ -74,28 +74,27 @@ dependencies {
     implementation(libs.retrofit)
 
     // Gson
-    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation(libs.retrofit.converter)
 
     // Hilt DI
-    implementation("com.google.dagger:hilt-android:2.48")
-    implementation("androidx.hilt:hilt-navigation-compose:1.1.0-alpha01")
-    kapt("com.google.dagger:hilt-compiler:2.48")
+    implementation(libs.hilt.android)
+    implementation(libs.hilt.navigation.compose)
+    kapt(libs.hilt.compiler)
 
     // Coil
-    implementation("io.coil-kt:coil:2.6.0")
-    implementation("io.coil-kt:coil-compose:2.6.0")
-    implementation("io.coil-kt:coil-gif:2.6.0")
+    implementation(libs.coil.kt)
+    implementation(libs.coil.compose)
+    implementation(libs.coil.gif)
 
     // Pagination
-    implementation("androidx.paging:paging-runtime:3.3.0")
-    implementation("androidx.paging:paging-compose:3.3.0")
+    implementation(libs.paging.runtime)
+    implementation(libs.paging.compose)
 
     // Room
-    implementation("androidx.room:room-runtime:2.6.1")
-    implementation("androidx.room:room-ktx:2.6.1")
-    implementation("androidx.room:room-paging:2.6.1")
-    annotationProcessor("androidx.room:room-compiler:2.6.1")
-    kapt("androidx.room:room-compiler:2.6.1")
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    annotationProcessor(libs.room.compiler)
+    kapt(libs.room.compiler)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
