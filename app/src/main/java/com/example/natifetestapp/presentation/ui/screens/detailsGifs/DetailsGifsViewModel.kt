@@ -8,7 +8,7 @@ import com.example.natifetestapp.domain.useCases.GetLoadedGifsUseCase
 import com.example.natifetestapp.presentation.navigation.Routes
 import com.example.natifetestapp.presentation.ui.mapping.toUIModel
 import com.example.natifetestapp.presentation.ui.models.GifUIModel
-import com.example.natifetestapp.utils.NetworkConnectionHelper
+import com.example.natifetestapp.utils.NetworkConnectionStatusHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -16,7 +16,7 @@ import javax.inject.Inject
 class DetailsGifsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     getLoadedGifsUseCase: GetLoadedGifsUseCase,
-    connectionHelper: NetworkConnectionHelper
+    connectionHelper: NetworkConnectionStatusHelper
 ): ViewModel() {
 
     private val initialItemIndex: Int = run {

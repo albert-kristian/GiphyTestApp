@@ -5,7 +5,7 @@ import com.example.natifetestapp.data.remote.services.gifs.api.SearchApi
 import com.example.natifetestapp.data.repository.GifsRepository
 import com.example.natifetestapp.data.repository.GifsRepositoryImpl
 import com.example.natifetestapp.di.coroutines.IoDispatcher
-import com.example.natifetestapp.utils.NetworkConnectionHelper
+import com.example.natifetestapp.utils.NetworkConnectionStatusHelper
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -28,7 +28,7 @@ object SearchModule {
     @Singleton
     fun provideSearchRepository(
         @IoDispatcher dispatcher: CoroutineDispatcher,
-        connectionHelper: NetworkConnectionHelper,
+        connectionHelper: NetworkConnectionStatusHelper,
         searchApi: SearchApi,
         gifDao: GifDao
     ): GifsRepository {

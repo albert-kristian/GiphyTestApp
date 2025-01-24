@@ -15,7 +15,7 @@ import com.example.natifetestapp.domain.useCases.GetGifsUseCase
 import com.example.natifetestapp.domain.useCases.SetGifDeletedUseCase
 import com.example.natifetestapp.presentation.ui.mapping.toUIModel
 import com.example.natifetestapp.presentation.ui.models.GifUIModel
-import com.example.natifetestapp.utils.NetworkConnectionHelper
+import com.example.natifetestapp.utils.NetworkConnectionStatusHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -33,7 +33,7 @@ class MainGifsViewModel @Inject constructor(
     private val getGifsUseCase: GetGifsUseCase,
     private val getGifsPagingFlowUseCase: GetGifsPagingFlowUseCase,
     private val setGifDeletedUseCase: SetGifDeletedUseCase,
-    private val connectionHelper: NetworkConnectionHelper
+    private val connectionHelper: NetworkConnectionStatusHelper
 ): ViewModel() {
 
     private val _uiState = mutableStateOf<UiState>(UiState.Loading)
@@ -52,7 +52,7 @@ class MainGifsViewModel @Inject constructor(
             listenToSearchQueryChanges()
         }
         viewModelScope.launch {
-            connectionHelper.stateFlow.collect {
+            connectionHelper.networkConnectionStatusFlow.collect {
                 _isSearchVisible.value = connectionHelper.isOnline
                 getGifs()
             }

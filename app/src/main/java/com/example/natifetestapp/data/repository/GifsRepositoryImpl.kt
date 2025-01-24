@@ -11,14 +11,14 @@ import com.example.natifetestapp.data.remote.mapping.toDomain
 import com.example.natifetestapp.data.remote.services.gifs.api.SearchApi
 import com.example.natifetestapp.di.coroutines.IoDispatcher
 import com.example.natifetestapp.domain.models.GifDomain
-import com.example.natifetestapp.utils.NetworkConnectionHelper
+import com.example.natifetestapp.utils.NetworkConnectionStatusHelper
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
 class GifsRepositoryImpl(
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
-    private val connectionHelper: NetworkConnectionHelper,
+    private val connectionHelper: NetworkConnectionStatusHelper,
     private val searchApi: SearchApi,
     private val gifDao: GifDao
 ): GifsRepository {
