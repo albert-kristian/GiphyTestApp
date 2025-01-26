@@ -16,6 +16,8 @@ class NetworkConnectionStatusHelper(context: Context) {
     val isOnline get() = _isOnline
 
     val networkConnectionStatusFlow: Flow<Boolean> = callbackFlow {
+        trySend(false) // To set initial value
+
         val networkCallback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 _isOnline = true

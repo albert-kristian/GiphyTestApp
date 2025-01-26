@@ -78,7 +78,7 @@ class GifsRepositoryImpl(
             val updatedGifEntity = gifDao.getGifById(id).copy(
                 isDeleted = true
             )
-            gifDao.insert(updatedGifEntity)
+            gifDao.update(updatedGifEntity)
         }
     }
 
@@ -88,11 +88,11 @@ class GifsRepositoryImpl(
         withContext(dispatcher) {
             gifs.forEach { gifDomain ->
                 val existingEntity = gifDao.getOptionalGifById(gifDomain.id)
-                gifDao.insert(
-                    gifDomain.toEntity(
-                        isDeleted = existingEntity?.isDeleted == true
-                    )
-                )
+                if (existingEntity != null) {
+                    gifDao.update(existingEntity)
+                } else {
+                    gifDao.insert(gifDomain.toEntity())
+                }
             }
         }
     }

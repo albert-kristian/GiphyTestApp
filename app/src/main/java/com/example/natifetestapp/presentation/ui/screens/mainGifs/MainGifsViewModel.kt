@@ -46,9 +46,7 @@ class MainGifsViewModel @Inject constructor(
     val searchQuery: State<String> = _searchQuery
 
     init {
-        _isSearchVisible.value = connectionHelper.isOnline
         viewModelScope.launch {
-            getGifs()
             listenToSearchQueryChanges()
         }
         viewModelScope.launch {
