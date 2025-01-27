@@ -3,12 +3,14 @@ package com.example.natifetestapp.presentation.ui.components
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.CircularProgressIndicator
@@ -103,7 +105,11 @@ fun GifImage(
                         .align(Alignment.TopEnd)
                         .fillMaxWidth(.3f)
                         .aspectRatio(1f)
-                        .padding(8.dp),
+                        .padding(8.dp)
+                        .background(
+                            color = Color.Red,
+                            shape = CircleShape
+                        ),
                     onClick = {
                         onDeleteGifClicked(id)
                         wasDeleted = true
@@ -112,7 +118,7 @@ fun GifImage(
                     Icon(
                         imageVector = Icons.Outlined.Delete,
                         contentDescription = "Delete",
-                        tint = Color.Red
+                        tint = Color.White
                     )
                 }
             }
